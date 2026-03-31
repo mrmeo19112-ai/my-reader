@@ -13,11 +13,15 @@ const btnBack = document.getElementById('btn-back');
 const btnPlay = document.getElementById('btn-play');
 const btnStop = document.getElementById('btn-stop');
 
+// Các thành phần mới cho cỡ chữ
+const fontSlider = document.getElementById('font-slider');
+const fontSizeVal = document.getElementById('font-size-val');
+
 // --- 2. BIẾN QUẢN LÝ HỆ THỐNG ---
 const synth = window.speechSynthesis;
 let currentUtterance = null;
 let currentStoryIndex = null; 
-let lastCharIndex = 0; // Vị trí chữ cái đang đọc dở
+let lastCharIndex = 0; 
 
 // --- 3. HÀM HIỂN THỊ DANH SÁCH TRUYỆN ---
 function renderList() {
@@ -26,11 +30,10 @@ function renderList() {
 
     stories.forEach((story, index) => {
         const li = document.createElement('li');
-        // Tính toán phần trăm đã đọc (cho vui và chuyên nghiệp)
-        const percent = story.scrollPos ? " (Đang đọc dở)" : "";
+        const percent = story.scrollPos > 100 ? " (Đang đọc dở)" : "";
         
         li.innerHTML = `
-            <div style="display:flex; flex-direction:column; gap:5px">
+            <div style="display:flex; flex-direction:column; gap:5px; flex:1">
                 <span style="font-weight:bold">${story.title}</span>
                 <small style="color:#8e8e93; font-size:11px">Đã lưu${percent}</small>
             </div>
@@ -47,30 +50,20 @@ function renderList() {
 btnSave.onclick = () => {
     const title = inputTitle.value.trim();
     const content = inputContent.value.trim();
-
-    if (!title || !content) {
-        alert("Nhập đủ tên và nội dung nhé!");
-        return;
-    }
+    if (!title || !content) return alert("Nhập đủ tên và nội dung nhé!");
 
     const stories = JSON.parse(localStorage.getItem('giahuy_stories') || '[]');
-    stories.push({ 
-        title, 
-        content, 
-        scrollPos: 0, // Vị trí cuộn trang
-        lastChar: 0   // Vị trí chữ cái đang đọc
-    });
+    stories.push({ title, content, scrollPos: 0, lastChar: 0 });
     localStorage.setItem('giahuy_stories', JSON.stringify(stories));
 
-    inputTitle.value = '';
-    inputContent.value = '';
+    inputTitle.value = ''; inputContent.value = '';
     alert("Đã lưu vào kho!");
     renderList();
 };
 
 // --- 5. HÀM XÓA TRUYỆN ---
 window.deleteStory = (index) => {
-    if(confirm("Bạn có chắc muốn xóa truyện này không?")) {
+    if(confirm("Xóa truyện này nhé?")) {
         const stories = JSON.parse(localStorage.getItem('giahuy_stories') || '[]');
         stories.splice(index, 1);
         localStorage.setItem('giahuy_stories', JSON.stringify(stories));
@@ -78,7 +71,7 @@ window.deleteStory = (index) => {
     }
 }
 
-// --- 6. HÀM MỞ TRUYỆN (CÓ NHỚ VỊ TRÍ) ---
+// --- 6. HÀM MỞ TRUYỆN & CÀI ĐẶT CỠ CHỮ ---
 window.openStory = (index) => {
     currentStoryIndex = index;
     const stories = JSON.parse(localStorage.getItem('giahuy_stories') || '[]');
@@ -86,76 +79,82 @@ window.openStory = (index) => {
 
     displayTitle.innerText = story.title;
     displayContent.innerText = story.content;
-    lastCharIndex = story.lastChar || 0; // Lấy vị trí chữ cũ
+    lastCharIndex = story.lastChar || 0;
+
+    // Tải cỡ chữ đã lưu từ máy
+    const savedSize = localStorage.getItem('giahuy_fontsize') || 19;
+    applyFontSize(savedSize);
 
     homeScreen.classList.add('hidden');
     readerScreen.classList.remove('hidden');
 
-    // Đợi giao diện render xong rồi cuộn xuống vị trí cũ
     setTimeout(() => {
-        window.scrollTo({
-            top: story.scrollPos || 0,
-            behavior: 'smooth'
-        });
+        window.scrollTo({ top: story.scrollPos || 0, behavior: 'smooth' });
     }, 100);
 };
 
-// --- 7. TÍNH NĂNG GHI NHỚ VỊ TRÍ KHI CUỘN ---
+// --- 7. LOGIC CHỈNH CỠ CHỮ ---
+fontSlider.oninput = () => {
+    applyFontSize(fontSlider.value);
+};
+
+function applyFontSize(size) {
+    displayContent.style.fontSize = size + 'px';
+    fontSizeVal.innerText = size;
+    fontSlider.value = size;
+    // Lưu lại sở thích vào máy để lần sau không phải chỉnh lại
+    localStorage.setItem('giahuy_fontsize', size);
+}
+
+// --- 8. GHI NHỚ VỊ TRÍ CUỘN ---
 window.onscroll = () => {
-    // Chỉ lưu khi đang ở màn hình đọc truyện
     if (!readerScreen.classList.contains('hidden') && currentStoryIndex !== null) {
         const stories = JSON.parse(localStorage.getItem('giahuy_stories') || '[]');
-        stories[currentStoryIndex].scrollPos = window.scrollY;
-        localStorage.setItem('giahuy_stories', JSON.stringify(stories));
+        if (stories[currentStoryIndex]) {
+            stories[currentStoryIndex].scrollPos = window.scrollY;
+            localStorage.setItem('giahuy_stories', JSON.stringify(stories));
+        }
     }
 };
 
-// --- 8. ĐIỀU KHIỂN GIỌNG NÓI (TTS) ---
+// --- 9. ĐIỀU KHIỂN GIỌNG NÓI (TTS) ---
 btnPlay.onclick = () => {
-    if (synth.speaking) {
-        synth.cancel(); // Nếu đang đọc thì bấm nút này sẽ Reset lại câu đang đọc
-    }
+    if (synth.speaking) synth.cancel();
 
-    const fullText = displayContent.innerText;
-    // Bắt đầu đọc từ vị trí chữ cái cuối cùng đã lưu
-    const textToRead = fullText.substring(lastCharIndex);
-    
+    const textToRead = displayContent.innerText.substring(lastCharIndex);
     currentUtterance = new SpeechSynthesisUtterance(textToRead);
     currentUtterance.lang = 'vi-VN';
     currentUtterance.rate = 1.0;
 
-    // SỰ KIỆN QUAN TRỌNG: Theo dõi Siri đang đọc đến đâu
     currentUtterance.onboundary = (event) => {
         if (event.name === 'word') {
             const stories = JSON.parse(localStorage.getItem('giahuy_stories') || '[]');
-            // Cập nhật vị trí chữ cái mới = Vị trí cũ + Vị trí hiện tại của câu mới
             const globalCharIndex = lastCharIndex + event.charIndex;
             stories[currentStoryIndex].lastChar = globalCharIndex;
             localStorage.setItem('giahuy_stories', JSON.stringify(stories));
         }
     };
 
-    // Khi đọc hết truyện
     currentUtterance.onend = () => {
-        alert("Đã đọc xong chương này!");
-        lastCharIndex = 0; // Reset về đầu
+        alert("Xong chương rồi!");
+        const stories = JSON.parse(localStorage.getItem('giahuy_stories') || '[]');
+        stories[currentStoryIndex].lastChar = 0;
+        localStorage.setItem('giahuy_stories', JSON.stringify(stories));
+        lastCharIndex = 0;
     };
 
     synth.speak(currentUtterance);
 };
 
-btnStop.onclick = () => {
-    synth.cancel();
-};
+btnStop.onclick = () => synth.cancel();
 
-// --- 9. QUAY LẠI MÀN HÌNH CHÍNH ---
+// --- 10. QUAY LẠI ---
 btnBack.onclick = () => {
     synth.cancel();
     currentStoryIndex = null;
     readerScreen.classList.add('hidden');
     homeScreen.classList.remove('hidden');
-    renderList(); // Cập nhật lại danh sách (để hiện trạng thái "đang đọc dở")
+    renderList();
 };
 
-// Chạy khởi tạo danh sách khi vừa mở App
 renderList();
