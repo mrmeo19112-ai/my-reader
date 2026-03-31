@@ -1,3 +1,6 @@
+// ==========================================
+// 1. KẾT NỐI VỚI GIAO DIỆN HTML
+// ==========================================
 const homeScreen = document.getElementById('home-screen');
 const readerScreen = document.getElementById('reader-screen');
 const storyList = document.getElementById('story-list');
@@ -15,13 +18,18 @@ const btnPlay = document.getElementById('btn-play');
 const fontSlider = document.getElementById('font-slider');
 const fontSizeVal = document.getElementById('font-size-val');
 
+// ==========================================
+// 2. BIẾN HỆ THỐNG & TRẠNG THÁI
+// ==========================================
 const synth = window.speechSynthesis;
 let currentUtterance = null;
 let currentStoryIndex = null; 
 let lastCharIndex = 0; 
 let isPausedManual = false;
 
-// --- HÀM HIỂN THỊ DANH SÁCH ---
+// ==========================================
+// 3. QUẢN LÝ DANH SÁCH & LƯU TRỮ
+// ==========================================
 function renderList() {
     const stories = JSON.parse(localStorage.getItem('giahuy_stories') || '[]');
     storyList.innerHTML = ''; 
@@ -37,20 +45,21 @@ function renderList() {
     });
 }
 
-// --- LƯU & XÓA ---
 btnSave.onclick = () => {
     const title = inputTitle.value.trim();
     const content = inputContent.value.trim();
-    if (!title || !content) return alert("Nhập đủ đã nhé!");
+    if (!title || !content) return alert("Vui lòng nhập đủ tên và nội dung truyện!");
+    
     const stories = JSON.parse(localStorage.getItem('giahuy_stories') || '[]');
     stories.push({ title, content, scrollPos: 0, lastChar: 0 });
     localStorage.setItem('giahuy_stories', JSON.stringify(stories));
+    
     inputTitle.value = ''; inputContent.value = '';
     renderList();
 };
 
 window.deleteStory = (index) => {
-    if(confirm("Xóa nhé?")) {
+    if(confirm("Bạn có chắc chắn muốn xóa truyện này?")) {
         const stories = JSON.parse(localStorage.getItem('giahuy_stories') || '[]');
         stories.splice(index, 1);
         localStorage.setItem('giahuy_stories', JSON.stringify(stories));
@@ -58,22 +67,38 @@ window.deleteStory = (index) => {
     }
 }
 
-// --- MỞ TRUYỆN & CỠ CHỮ ---
+// ==========================================
+// 4. MỞ TRUYỆN & CÀI ĐẶT CỠ CHỮ
+// ==========================================
 window.openStory = (index) => {
     currentStoryIndex = index;
     const stories = JSON.parse(localStorage.getItem('giahuy_stories') || '[]');
     const story = stories[index];
+    
     displayTitle.innerText = story.title;
     displayContent.innerText = story.content;
     lastCharIndex = story.lastChar || 0;
 
+    // Load cỡ chữ đã lưu
     applyFontSize(localStorage.getItem('giahuy_fontsize') || 19);
+    
+    // Đảm bảo thanh điều khiển hiện rõ khi mới vào
+    readerControls.style.opacity = "1";
+    readerControls.style.pointerEvents = "auto";
+    btnPlay.innerText = "▶️";
+    btnPlay.style.opacity = "1";
+
     homeScreen.classList.add('hidden');
     readerScreen.classList.remove('hidden');
-    setTimeout(() => { window.scrollTo(0, story.scrollPos || 0); }, 100);
+
+    // Tự động cuộn đến chỗ đọc dở
+    setTimeout(() => { 
+        window.scrollTo(0, story.scrollPos || 0); 
+    }, 100);
 };
 
 fontSlider.oninput = () => applyFontSize(fontSlider.value);
+
 function applyFontSize(size) {
     displayContent.style.fontSize = size + 'px';
     fontSizeVal.innerText = size + 'px';
@@ -81,29 +106,75 @@ function applyFontSize(size) {
     localStorage.setItem('giahuy_fontsize', size);
 }
 
-// --- LOGIC ĐỌC TRUYỆN DÀI (FIX LỖI 3K CHỮ) ---
+// ==========================================
+// 5. TRÍ NHỚ & LƯU TRẠNG THÁI LIÊN TỤC
+// ==========================================
+function saveCurrentProgress() {
+    if (currentStoryIndex !== null) {
+        const stories = JSON.parse(localStorage.getItem('giahuy_stories') || '[]');
+        if (stories[currentStoryIndex]) {
+            stories[currentStoryIndex].lastChar = lastCharIndex;
+            stories[currentStoryIndex].scrollPos = window.scrollY;
+            localStorage.setItem('giahuy_stories', JSON.stringify(stories));
+        }
+    }
+}
+
+// Bắt sự kiện thoát App ra màn hình chính (Lưu ngay lập tức)
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') {
+        synth.cancel(); 
+        saveCurrentProgress();
+    }
+});
+
+// Lưu vị trí khi bạn tự dùng tay vuốt màn hình
+window.onscroll = () => {
+    if (!readerScreen.classList.contains('hidden')) {
+        saveCurrentProgress();
+    }
+};
+
+// ==========================================
+// 6. LOGIC ĐỌC TRUYỆN (XỬ LÝ TRUYỆN DÀI)
+// ==========================================
 btnPlay.onclick = () => {
+    // NẾU ĐANG ĐỌC -> BẤM VÀO ĐỂ TẠM DỪNG
     if (synth.speaking && !synth.paused) {
-        // Đang đọc thì TẠM DỪNG
         synth.cancel();
         isPausedManual = true;
+        
         btnPlay.innerText = "▶️";
-        readerControls.style.opacity = "1"; // Hiện lại nút chỉnh
+        btnPlay.style.opacity = "1"; // Sáng nút lên
+        
+        // Hiện lại thanh công cụ trên cùng
+        readerControls.style.opacity = "1"; 
+        readerControls.style.pointerEvents = "auto"; 
+        
+        saveCurrentProgress();
         return;
     }
 
+    // NẾU ĐANG DỪNG -> BẤM VÀO ĐỂ ĐỌC TIẾP
     isPausedManual = false;
     btnPlay.innerText = "⏸";
-    readerControls.style.opacity = "0"; // ẨN NÚT KHI ĐỌC
+    btnPlay.style.opacity = "0.3"; // Làm mờ nút Pause để không rối mắt
+    
+    // Ẩn thanh công cụ trên cùng (Chế độ tập trung)
+    readerControls.style.opacity = "0"; 
+    readerControls.style.pointerEvents = "none";
 
     const fullText = displayContent.innerText;
-    // Chia nhỏ truyện thành các đoạn 2000 chữ để tránh lỗi trình duyệt dừng đột ngột
+    // Cắt khúc 2000 chữ để trình duyệt không bị treo
     const textChunk = fullText.substring(lastCharIndex, lastCharIndex + 2000);
     
     if (textChunk.length === 0) {
         btnPlay.innerText = "▶️";
+        btnPlay.style.opacity = "1";
         readerControls.style.opacity = "1";
-        alert("Hết truyện rồi!");
+        lastCharIndex = 0; 
+        saveCurrentProgress();
+        alert("Đã đọc hết truyện!");
         return;
     }
 
@@ -111,37 +182,50 @@ btnPlay.onclick = () => {
     currentUtterance.lang = 'vi-VN';
     currentUtterance.rate = 1.0;
 
+    // Ghi nhớ từng chữ cái khi Siri đọc
     currentUtterance.onboundary = (event) => {
         if (event.name === 'word') {
-            const stories = JSON.parse(localStorage.getItem('giahuy_stories') || '[]');
-            stories[currentStoryIndex].lastChar = lastCharIndex + event.charIndex;
-            localStorage.setItem('giahuy_stories', JSON.stringify(stories));
+            const tempIndex = lastCharIndex + event.charIndex;
+            
+            // Cứ 5 từ thì lưu vào bộ nhớ 1 lần cho an toàn tuyệt đối
+            if (event.charIndex % 5 === 0) {
+                const stories = JSON.parse(localStorage.getItem('giahuy_stories') || '[]');
+                stories[currentStoryIndex].lastChar = tempIndex;
+                stories[currentStoryIndex].scrollPos = window.scrollY;
+                localStorage.setItem('giahuy_stories', JSON.stringify(stories));
+            }
         }
     };
 
+    // Khi đọc hết khúc 2000 chữ -> Tự động gọi đọc khúc tiếp theo
     currentUtterance.onend = () => {
         if (!isPausedManual) {
-            lastCharIndex += textChunk.length; // Chuyển sang đoạn 2000 chữ tiếp theo
-            btnPlay.click(); // Tự động kích hoạt đọc đoạn kế tiếp
+            lastCharIndex += textChunk.length;
+            saveCurrentProgress();
+            btnPlay.click(); 
         }
     };
 
     synth.speak(currentUtterance);
 };
 
-// --- QUAY LẠI ---
+// ==========================================
+// 7. QUAY LẠI MÀN HÌNH CHÍNH
+// ==========================================
 btnBack.onclick = () => {
     synth.cancel();
-    const stories = JSON.parse(localStorage.getItem('giahuy_stories') || '[]');
-    if(stories[currentStoryIndex]) {
-        stories[currentStoryIndex].scrollPos = window.scrollY;
-        localStorage.setItem('giahuy_stories', JSON.stringify(stories));
-    }
+    saveCurrentProgress();
+    
+    // Khôi phục lại giao diện ban đầu
     btnPlay.innerText = "▶️";
+    btnPlay.style.opacity = "1";
     readerControls.style.opacity = "1";
+    readerControls.style.pointerEvents = "auto";
+    
     readerScreen.classList.add('hidden');
     homeScreen.classList.remove('hidden');
     renderList();
 };
 
+// Khởi chạy App
 renderList();

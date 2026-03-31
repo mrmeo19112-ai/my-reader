@@ -1,3 +1,4 @@
+/* --- BIẾN MÀU SẮC (DARK MODE) --- */
 :root {
     --primary: #0a84ff;
     --bg: #000000;
@@ -5,18 +6,22 @@
     --text: #ffffff;
 }
 
+/* --- CẤU HÌNH CƠ BẢN --- */
 body {
     background-color: var(--bg);
     color: var(--text);
-    font-family: -apple-system, system-ui, sans-serif;
-    margin: 0; padding: 20px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    margin: 0; 
+    padding: 20px;
     -webkit-tap-highlight-color: transparent;
+    line-height: 1.6;
 }
 
-.hidden { display: none; }
+.hidden { display: none !important; }
 
 h1 { font-size: 24px; text-align: center; margin-bottom: 30px; }
 
+/* --- KHU VỰC NHẬP TRUYỆN --- */
 .input-group { display: flex; flex-direction: column; gap: 10px; }
 
 input, textarea {
@@ -38,6 +43,7 @@ button {
     cursor: pointer;
 }
 
+/* --- DANH SÁCH TRUYỆN --- */
 #story-list { list-style: none; padding: 0; margin-top: 20px; }
 
 #story-list li {
@@ -45,14 +51,41 @@ button {
     padding: 15px; border-radius: 10px;
     margin-bottom: 10px;
     display: flex; justify-content: space-between;
+    align-items: center;
 }
 
-.audio-controls {
-    position: fixed; bottom: 30px; left: 0; right: 0;
-    display: flex; justify-content: center; gap: 20px;
+/* --- THANH CÔNG CỤ TRONG TRUYỆN (CUỘN TỰ NHIÊN) --- */
+#reader-controls {
+    position: static; /* Không cố định, sẽ trôi lên khi cuộn trang */
+    margin-bottom: 15px;
+    transition: opacity 0.4s ease; /* Hiệu ứng mờ dần mượt mà */
 }
+
+/* --- KHU VỰC HIỂN THỊ CHỮ --- */
+#display-title { margin-top: 10px; }
 
 #display-content {
-    line-height: 1.8; font-size: 19px;
-    margin-top: 20px; white-space: pre-wrap;
+    margin-top: 15px; 
+    white-space: pre-wrap;
+    padding-bottom: 120px; /* Chừa khoảng trống dưới cùng để không bị che chữ */
+}
+
+/* --- NÚT ĐIỀU KHIỂN ĐỌC (PLAY/PAUSE) --- */
+.audio-controls {
+    position: fixed; 
+    bottom: 30px; 
+    right: 20px; /* Đặt ở góc dưới bên phải cho dễ bấm */
+    z-index: 100;
+}
+
+#btn-play {
+    width: 60px; 
+    height: 60px; 
+    border-radius: 50%; /* Nút hình tròn */
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+    transition: opacity 0.3s ease; /* Hiệu ứng làm mờ khi đang đọc */
 }
