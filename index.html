@@ -22,19 +22,24 @@
         </div>
 
         <div id="reader-screen" class="hidden">
-            <button class="btn-back" id="btn-back">⬅ Quay lại</button>
-            <div class="font-controls" style="margin: 15px 0; background: #1c1c1e; padding: 10px; border-radius: 10px;">
-            <label style="font-size: 14px; color: #8e8e93;">Cỡ chữ: <span id="font-size-val">19</span>px</label>
-            <input type="range" id="font-slider" min="14" max="40" value="19" style="width: 100%; margin-top: 10px;">
-            </div>
-            <h2 id="display-title"></h2>
-            <div id="display-content"></div>
-            <div class="audio-controls">
-                <button id="btn-play">▶️ Đọc Truyện</button>
-                <button id="btn-stop">🛑 Dừng</button>
+    <div id="reader-controls">
+        <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px;">
+            <button class="btn-back" id="btn-back" style="width: 100px; margin: 0;">⬅ Quay lại</button>
+            <div style="flex: 1; background: #1c1c1e; padding: 10px; border-radius: 10px; display: flex; align-items: center; gap: 10px;">
+                <span id="font-size-val" style="font-size: 12px; min-width: 30px;">19px</span>
+                <input type="range" id="font-slider" min="14" max="40" value="19" style="flex: 1;">
             </div>
         </div>
     </div>
+
+    <h2 id="display-title"></h2>
+    <div id="display-content"></div>
+
+    <div class="audio-controls">
+        <button id="btn-play" style="width: 80px; height: 80px; border-radius: 50%; font-size: 30px;">▶️</button>
+        <button id="btn-stop" style="display: none;">🛑</button> 
+    </div>
+</div>
     <script src="app.js"></script>
 </body>
 </html>
