@@ -1,0 +1,58 @@
+:root {
+    --primary: #0a84ff;
+    --bg: #000000;
+    --card: #1c1c1e;
+    --text: #ffffff;
+}
+
+body {
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, system-ui, sans-serif;
+    margin: 0; padding: 20px;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.hidden { display: none; }
+
+h1 { font-size: 24px; text-align: center; margin-bottom: 30px; }
+
+.input-group { display: flex; flex-direction: column; gap: 10px; }
+
+input, textarea {
+    background: var(--card);
+    border: 1px solid #38383a;
+    border-radius: 10px;
+    color: white;
+    padding: 15px;
+    font-size: 16px;
+}
+
+textarea { height: 150px; resize: none; }
+
+button {
+    background: var(--primary);
+    color: white; border: none;
+    padding: 15px; border-radius: 12px;
+    font-weight: 600; font-size: 16px;
+    cursor: pointer;
+}
+
+#story-list { list-style: none; padding: 0; margin-top: 20px; }
+
+#story-list li {
+    background: var(--card);
+    padding: 15px; border-radius: 10px;
+    margin-bottom: 10px;
+    display: flex; justify-content: space-between;
+}
+
+.audio-controls {
+    position: fixed; bottom: 30px; left: 0; right: 0;
+    display: flex; justify-content: center; gap: 20px;
+}
+
+#display-content {
+    line-height: 1.8; font-size: 19px;
+    margin-top: 20px; white-space: pre-wrap;
+}

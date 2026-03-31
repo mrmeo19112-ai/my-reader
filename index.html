@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Gia Huy Reader</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3502/3502460.png">
+</head>
+<body>
+    <div id="app">
+        <div id="home-screen">
+            <h1>📚 Kho Truyện Của Tôi</h1>
+            <div class="input-group">
+                <input type="text" id="story-title" placeholder="Tên chương truyện...">
+                <textarea id="story-content" placeholder="Dán nội dung truyện vào đây..."></textarea>
+                <button id="btn-save">Lưu Vào Máy</button>
+            </div>
+            <hr>
+            <ul id="story-list"></ul>
+        </div>
+
+        <div id="reader-screen" class="hidden">
+            <button class="btn-back" id="btn-back">⬅ Quay lại</button>
+            <h2 id="display-title"></h2>
+            <div id="display-content"></div>
+            <div class="audio-controls">
+                <button id="btn-play">▶️ Đọc Truyện</button>
+                <button id="btn-stop">🛑 Dừng</button>
+            </div>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
