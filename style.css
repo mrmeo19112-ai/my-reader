@@ -54,11 +54,31 @@ button {
     align-items: center;
 }
 
-/* --- THANH CÔNG CỤ TRONG TRUYỆN (CUỘN TỰ NHIÊN) --- */
+/* --- THANH CÔNG CỤ TRONG TRUYỆN (LUÔN GHIM TRÊN MÀN HÌNH) --- */
 #reader-controls {
-    position: static; /* Không cố định, sẽ trôi lên khi cuộn trang */
+    position: -webkit-sticky; /* Hỗ trợ riêng cho iPhone */
+    position: sticky;         /* Luôn dính chặt vào màn hình */
+    top: 0;                   /* Dính sát mép trên cùng */
+    background-color: var(--bg); /* Nền đen để che chữ khi cuộn lên, không bị rối mắt */
+    z-index: 99;              /* Nổi lên trên cùng, không bị chữ đè lên */
+    padding: 10px 0;
     margin-bottom: 15px;
-    transition: opacity 0.4s ease; /* Hiệu ứng mờ dần mượt mà */
+    transition: opacity 0.4s ease;
+}
+
+/* --- NÚT QUAY LẠI HÌNH TRÒN (GIỐNG NÚT PLAY) --- */
+#btn-back {
+    width: 60px; 
+    height: 60px; 
+    border-radius: 50%; /* Hình tròn 100% */
+    font-size: 26px; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.6); 
+    padding: 0;
+    margin: 0;
+    flex-shrink: 0; 
 }
 
 /* --- KHU VỰC HIỂN THỊ CHỮ --- */
