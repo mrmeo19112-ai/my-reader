@@ -1,4 +1,3 @@
-/* --- BIẾN MÀU SẮC (DARK MODE) --- */
 :root {
     --primary: #0a84ff;
     --bg: #000000;
@@ -6,106 +5,71 @@
     --text: #ffffff;
 }
 
-/* --- CẤU HÌNH CƠ BẢN --- */
 body {
     background-color: var(--bg);
     color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    margin: 0; 
-    padding: 20px;
-    -webkit-tap-highlight-color: transparent;
+    font-family: -apple-system, system-ui, sans-serif;
+    margin: 0; padding: 20px;
     line-height: 1.6;
 }
 
 .hidden { display: none !important; }
 
-h1 { font-size: 24px; text-align: center; margin-bottom: 30px; }
-
-/* --- KHU VỰC NHẬP TRUYỆN --- */
-.input-group { display: flex; flex-direction: column; gap: 10px; }
-
-input, textarea {
-    background: var(--card);
-    border: 1px solid #38383a;
-    border-radius: 10px;
-    color: white;
-    padding: 15px;
-    font-size: 16px;
-}
-
-textarea { height: 150px; resize: none; }
-
-button {
-    background: var(--primary);
-    color: white; border: none;
-    padding: 15px; border-radius: 12px;
-    font-weight: 600; font-size: 16px;
-    cursor: pointer;
-}
-
-/* --- DANH SÁCH TRUYỆN --- */
-#story-list { list-style: none; padding: 0; margin-top: 20px; }
-
-#story-list li {
-    background: var(--card);
-    padding: 15px; border-radius: 10px;
-    margin-bottom: 10px;
-    display: flex; justify-content: space-between;
-    align-items: center;
-}
-
-/* --- THANH CÔNG CỤ TRONG TRUYỆN (LUÔN GHIM TRÊN MÀN HÌNH) --- */
+/* --- THANH CÔNG CỤ CỐ ĐỊNH PHÍA TRÊN --- */
 #reader-controls {
-    position: -webkit-sticky; /* Hỗ trợ riêng cho iPhone */
-    position: sticky;         /* Luôn dính chặt vào màn hình */
-    top: 0;                   /* Dính sát mép trên cùng */
-    background-color: var(--bg); /* Nền đen để che chữ khi cuộn lên, không bị rối mắt */
-    z-index: 99;              /* Nổi lên trên cùng, không bị chữ đè lên */
-    padding: 10px 0;
-    margin-bottom: 15px;
-    transition: opacity 0.4s ease;
+    position: fixed;
+    top: 0; left: 0; width: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+    z-index: 999;
+    padding: 10px 20px;
+    box-sizing: border-box;
+    transition: opacity 0.4s;
 }
 
-/* --- NÚT QUAY LẠI HÌNH TRÒN (GIỐNG NÚT PLAY) --- */
+/* Nút quay lại tròn, tối giản */
 #btn-back {
-    width: 60px; 
-    height: 60px; 
-    border-radius: 50%; /* Hình tròn 100% */
-    font-size: 26px; 
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.6); 
-    padding: 0;
-    margin: 0;
-    flex-shrink: 0; 
+    width: 50px; height: 50px;
+    border-radius: 50%;
+    background: var(--card);
+    color: white; border: none;
+    font-size: 24px;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.5);
 }
 
-/* --- KHU VỰC HIỂN THỊ CHỮ --- */
-#display-title { margin-top: 10px; }
+/* --- THANH TIẾN ĐỘ --- */
+#progress-container {
+    width: 100%;
+    height: 4px;
+    background: #333;
+    margin-top: 15px;
+    border-radius: 2px;
+    overflow: hidden;
+}
+#progress-bar {
+    width: 0%; /* Sẽ tăng dần bằng JavaScript */
+    height: 100%;
+    background: var(--primary);
+    transition: width 0.3s;
+}
+
+/* --- NỘI DUNG TRUYỆN --- */
+#display-title { margin-top: 100px; font-size: 24px; }
 
 #display-content {
-    margin-top: 15px; 
+    font-size: 31px !important; /* CỐ ĐỊNH CỠ CHỮ 31 */
+    margin-top: 20px;
     white-space: pre-wrap;
-    padding-bottom: 120px; /* Chừa khoảng trống dưới cùng để không bị che chữ */
+    padding-bottom: 150px;
 }
 
-/* --- NÚT ĐIỀU KHIỂN ĐỌC (PLAY/PAUSE) --- */
-.audio-controls {
-    position: fixed; 
-    bottom: 30px; 
-    right: 20px; /* Đặt ở góc dưới bên phải cho dễ bấm */
-    z-index: 100;
-}
-
+/* NÚT PLAY TRÔI NỔI */
+.audio-controls { position: fixed; bottom: 30px; right: 20px; z-index: 1000; }
 #btn-play {
-    width: 60px; 
-    height: 60px; 
-    border-radius: 50%; /* Nút hình tròn */
-    font-size: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    width: 70px; height: 70px;
+    border-radius: 50%;
+    background: var(--primary);
+    font-size: 30px;
+    border: none; color: white;
     box-shadow: 0 4px 15px rgba(0,0,0,0.6);
-    transition: opacity 0.3s ease; /* Hiệu ứng làm mờ khi đang đọc */
 }
